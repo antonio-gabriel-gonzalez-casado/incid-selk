@@ -1,0 +1,5 @@
+# Especifica la dirección URL de los nodos de Elasticsearch a los que Logstash enviará datos de monitoreo. En este caso, se configura para enviar datos de monitoreo a Elasticsearch en "http://elasticsearch:9200", donde "elasticsearch" es el nombre del servicio de Elasticsearch definido en el archivo docker-compose y "9200" es el puerto de Elasticsearch.
+xpack.monitoring.elasticsearch.hosts: [ "http://elasticsearch:9200" ] 
+
+# Habilita la recopilación de datos de monitoreo por parte de X-Pack en Logstash. Cuando está configurado como "true", Logstash recopilará información sobre su propio rendimiento y estado, así como sobre los eventos procesados y otros datos relevantes para el monitoreo y anál
+xpack.monitoring.enabled: true  

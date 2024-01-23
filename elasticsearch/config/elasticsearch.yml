@@ -1,0 +1,20 @@
+# Establece el nombre del clúster de Elasticsearch como "docker-cluster". Esto ayuda a identificar el clúster en el entorno.
+cluster.name: "docker-cluster"  
+
+# Define el nombre del nodo de Elasticsearch como "elasticsearch". Cada nodo en el clúster debe tener un nombre único.
+node.name: "elasticsearch"  
+
+# Especifica los nodos que actuarán como nodos maestros iniciales del clúster. En este caso, solo hay un nodo con el nombre "elasticsearch" que será el nodo maestro inicial.
+cluster.initial_master_nodes: ["elasticsearch"] 
+
+# Configura la dirección IP a la que Elasticsearch se enlazará para escuchar las conexiones de red. "0.0.0.0" significa que Elasticsearch escuchará en todas las interfaces de red disponibles en el host, lo que permite el acceso desde cualquier dirección IP.
+network.host: 0.0.0.0  
+
+
+## X-Pack settings (Configuraciones de X-Pack)
+## Consulta https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-xpack.html
+
+# Deshabilita la funcionalidad de seguridad proporcionada por X-Pack en Elasticsearch. Esto significa que no se requiere autenticación y autorización de usuario.
+xpack.security.enabled: false  
+# Habilita la recopilación de métricas y estadísticas de monitoreo por parte de X-Pack. Cuando está configurado como "true", Elasticsearch recopilará información sobre su propio rendimiento y estado para su uso en monitoreo y análisis.
+xpack.monitoring.collection.enabled: true

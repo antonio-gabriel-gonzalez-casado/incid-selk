@@ -1,0 +1,76 @@
+version: '3.8'  # Versión de Docker Compose.
+
+services:
+  elasticsearch:
+    build:
+      context: ./elasticsearch            # Contexto de construcción (directorio donde está el Dockerfile).
+      dockerfile: Dockerfile              # Nombre del Dockerfile.
+      args:
+        STACK_VERSION: ${STACK_VERSION}   # Argumento de construcción, versión del stack ELK.
+    container_name: elasticsearch         # Nombre del contenedor.
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Montar el socket Docker para comunicación entre contenedores.
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml  # Montar el archivo de configuración personalizado.
+    networks:
+      elk-net:                            # Definir y conectar a la red personalizada.
+        ipv4_address: 172.20.0.10         # Dirección IP estática en la red personalizada.
+    ports:
+      - "9200:9200"                       # Mapear el puerto 9200 para acceso a Elasticsearch desde fuera del contenedor.
+    healthcheck:                          # Define un healthcheck para el contenedor.
+      test: ["CMD-SHELL", "curl -f http://elasticsearch:9200/_cluster/health || exit 1"]  # Comando de disponibilidad.
+      interval: 20s                       # Intervalo entre comprobaciones de disponibilidad.
+      timeout: 10s                        # Tiempo de espera antes de que se considere que la comprobación de disponibilidad ha fallado.
+      retries: 50                         # Número máximo de intentos antes de que se considere que la comprobación de disponibilida ha fallado definitivamente.
+      start_period: 60s                   # Tiempo de espera antes de que comience la comprobación de disponibildad.
+
+
+  logstash:
+    build:
+      context: ./logstash
+      dockerfile: Dockerfile
+      args:
+        STACK_VERSION: ${STACK_VERSION}
+    container_name: logstash
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+    networks:
+      - elk-net
+    ports:
+      - "5044:5044"   # Puerto para Logstash.
+    depends_on:      # Define las dependencias del servicio.
+      elasticsearch:  # Dependencia en Elasticsearch.
+        condition: service_healthy  # Condición para esperar a que Elasticsearch esté disponible.
+
+
+  kibana:
+    build:
+      context: ./kibana
+      dockerfile: Dockerfile
+      args:
+        STACK_VERSION: ${STACK_VERSION}
+    container_name: kibana
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
+    networks:
+      - elk-net
+    ports:
+      - "5601:5601"  # Puerto para Kibana.
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://kibana:5601/api/status || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 50
+      start_period: 60s
+
+networks:
+  elk-net:          # Define la red "elk-net".
+    driver: bridge  # Configura el controlador de red.
+    ipam:           # Configura la asignación de direcciones IP.
+      config:
+        - subnet: "172.20.0.0/24"  # Define el rango de direcciones IP para la red.

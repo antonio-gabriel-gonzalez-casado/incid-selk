@@ -1,0 +1,11 @@
+# Establece el nombre del servidor Kibana como "kibana". Esto se utiliza para identificar el servidor Kibana en el entorno.
+server.name: kibana  
+
+# Configura la dirección IP a la que Kibana se enlazará para escuchar las conexiones de red. "0.0.0.0" significa que Kibana escuchará en todas las interfaces de red disponibles en el host, lo que permite el acceso desde cualquier dirección IP.
+server.host: "0.0.0.0"  
+
+ # Especifica la dirección URL de los nodos de Elasticsearch a los que se conectará Kibana. En este caso, se configura para conectarse a Elasticsearch en "http://elasticsearch:9200", donde "elasticsearch" es el nombre del servicio de Elasticsearch definido en el archivo docker-compose y "9200" es el puerto de Elasticsearch.
+elasticsearch.hosts: [ "http://elasticsearch:9200" ] 
+
+# Habilita la integración de monitoreo de Kibana con Elasticsearch. Esto permite a Kibana mostrar información sobre la salud y el estado de Elasticsearch en su interfaz de usuario.
+xpack.monitoring.ui.container.elasticsearch.enabled: true
